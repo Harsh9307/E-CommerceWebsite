@@ -1,7 +1,13 @@
 import express from 'express';
 import userRoute from './routes/user.js';
-const app = express();
+import { connectDB } from './utils/features.js';
 const port = 4000;
+connectDB();
+const app = express();
+app.use(express.json());
+app.get("/", (req, res) => {
+    res.send("API Working with /api/v1");
+});
 //using routes
 app.use("/api/v1/user", userRoute);
 app.listen(port, () => {
