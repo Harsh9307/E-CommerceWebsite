@@ -35,7 +35,7 @@ export interface BaseQuery {
     $regex: string;
     $options: string;
   };
-  price?: { $lte: number };
+  price?: { $lte: number };  // yeh number se kam wale , will be using for filter product
   category?: string;
 }
 
