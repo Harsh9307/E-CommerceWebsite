@@ -5,3 +5,4 @@ export const connectDB = () => {
     }).then(c => console.log(`DB Connected to ${c.connection.host}`))
         .catch((e) => console.log(e));
 };
+//3:25:55
