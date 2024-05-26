@@ -5,7 +5,7 @@ import { Product } from "../models/product.js";
 import ErrorHandler from "../utils/utility-class.js";
 import { rm } from "fs";
 import { myCache } from "../app.js";
-import { invalidateCahce } from "../utils/features.js";
+import { invalidateCache } from "../utils/features.js";
 //import {faker} from '@faker-js/faker';
 
 
@@ -108,7 +108,7 @@ export const newProduct = TryCatch(
             photo: photo?.path
         })
         
-        await invalidateCahce({product:true});
+        await invalidateCache({product:true});
 
         return res.status(201).json({
             success: true,
@@ -140,7 +140,7 @@ export const updateProduct = TryCatch(
 
         await product.save();
 
-        await invalidateCahce({product:true});
+        await invalidateCache({product:true});
         
         return res.status(201).json({
             success: true,
@@ -159,7 +159,7 @@ export const deleteProduct = TryCatch(async(req,res,next)=>{
     });
     await Product.deleteOne();
 
-    await invalidateCahce({product:true});
+    await invalidateCache({product:true});
 
     return res.status(200).json({
         success: true,

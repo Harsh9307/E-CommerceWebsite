@@ -3,7 +3,7 @@ import { Product } from "../models/product.js";
 import ErrorHandler from "../utils/utility-class.js";
 import { rm } from "fs";
 import { myCache } from "../app.js";
-import { invalidateCahce } from "../utils/features.js";
+import { invalidateCache } from "../utils/features.js";
 //import {faker} from '@faker-js/faker';
 // Revalidate on New, Update , Delete Productq & on New Order
 export const getLatestProducts = TryCatch(async (req, res, next) => {
@@ -83,7 +83,7 @@ export const newProduct = TryCatch(async (req, res, next) => {
         category: category.toLowerCase(),
         photo: photo?.path
     });
-    await invalidateCahce({ product: true });
+    await invalidateCache({ product: true });
     return res.status(201).json({
         success: true,
         message: "Product created successfully",
@@ -111,7 +111,7 @@ export const updateProduct = TryCatch(async (req, res, next) => {
     if (category)
         product.category = category;
     await product.save();
-    await invalidateCahce({ product: true });
+    await invalidateCache({ product: true });
     return res.status(201).json({
         success: true,
         message: "Product Updated successfully",
@@ -125,7 +125,7 @@ export const deleteProduct = TryCatch(async (req, res, next) => {
         console.log("Product photo Deleted");
     });
     await Product.deleteOne();
-    await invalidateCahce({ product: true });
+    await invalidateCache({ product: true });
     return res.status(200).json({
         success: true,
         message: "Product deleted successfully"

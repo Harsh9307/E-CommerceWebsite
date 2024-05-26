@@ -1,6 +1,6 @@
 import { TryCatch } from "../middlewares/error.js";
 import { Order } from "../models/order.js";
-import { invalidateCahce, reduceStock } from "../utils/features.js";
+import { invalidateCache, reduceStock } from "../utils/features.js";
 import ErrorHandler from "../utils/utility-class.js";
 import { myCache } from "../app.js";
 export const newOrder = TryCatch(async (req, res, next) => {
@@ -18,7 +18,13 @@ export const newOrder = TryCatch(async (req, res, next) => {
         total,
     });
     await reduceStock(orderItems);
-    await invalidateCahce({ product: true, order: true, admin: true });
+    await invalidateCache({
+        product: true,
+        order: true,
+        admin: true,
+        userId: user,
+        productId: order.orderItems.map((i) => String(i.productId)),
+    });
     return res.status(201).json({
         success: true,
         message: "Order Placed Successfully",
@@ -68,5 +74,52 @@ export const getSingleOrder = TryCatch(async (req, res, next) => {
     return res.status(200).json({
         success: true,
         order,
+    });
+});
+export const processOrder = TryCatch(async (req, res, next) => {
+    const { id } = req.params;
+    const order = await Order.findById(id);
+    if (!order)
+        return next(new ErrorHandler("Order Not Found", 404));
+    switch (order.status) {
+        case "Processing":
+            order.status = "Shipped";
+            break;
+        case "Shipped":
+            order.status = "Delivered";
+            break;
+        default:
+            order.status = "Delivered";
+            break;
+    }
+    await order.save();
+    invalidateCache({
+        product: false,
+        order: true,
+        admin: true,
+        userId: order.user,
+        orderId: String(order._id),
+    });
+    return res.status(200).json({
+        success: true,
+        message: "Order Processed Successfully",
+    });
+});
+export const deleteOrder = TryCatch(async (req, res, next) => {
+    const { id } = req.params;
+    const order = await Order.findById(id);
+    if (!order)
+        return next(new ErrorHandler("Order Not Found", 404));
+    await order.deleteOne();
+    invalidateCache({
+        product: false,
+        order: true,
+        admin: true,
+        userId: order.user,
+        orderId: String(order._id),
+    });
+    return res.status(200).json({
+        success: true,
+        message: "Order Deleted Successfully",
     });
 });

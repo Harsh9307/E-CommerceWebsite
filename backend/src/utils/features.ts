@@ -11,27 +11,47 @@ export const connectDB = (uri:string)=>{
 }
 
 //The function's primary purpose is to ensure that cached data related to products is invalidated (deleted) when there are changes to the product data. This helps in maintaining data consistency between the cache and the database.
-export const invalidateCahce = async ({
+export const invalidateCache = ({
     product,
     order,
     admin,
-
-}:InvalidateCacheProps)=> {
-    if(product){
-        const productKeys : string[]=[
-            "latest-products",
-            "categories",
-            "all-products",
-        ];
-        const products = await  Product.find({}).select("_id");
-
-        products.forEach((i)=>{
-            productKeys.push(`product-${i._id}`);
-        })
-
-        myCache.del(productKeys);
+    userId,
+    orderId,
+    productId,
+  }: InvalidateCacheProps) => {
+    if (product) {
+      const productKeys: string[] = [
+        "latest-products",
+        "categories",
+        "all-products",
+      ];
+  
+      if (typeof productId === "string") productKeys.push(`product-${productId}`);
+  
+      if (typeof productId === "object")
+        productId.forEach((i) => productKeys.push(`product-${i}`));
+  
+      myCache.del(productKeys);
     }
-}
+    if (order) {
+      const ordersKeys: string[] = [
+        "all-orders",
+        `my-orders-${userId}`,
+        `order-${orderId}`,
+      ];
+  
+      myCache.del(ordersKeys);
+    }
+    if (admin) {
+      myCache.del([
+        "admin-stats",
+        "admin-pie-charts",
+        "admin-bar-charts",
+        "admin-line-charts",
+      ]);
+    }
+  };
+  
 
 export const reduceStock = async (orderItems: OrderItemType[]) => {
     for (let i = 0; i < orderItems.length; i++) {
