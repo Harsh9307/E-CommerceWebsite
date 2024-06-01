@@ -3,7 +3,8 @@ import { adminOnly } from "../middlewares/auth.js";
 import {
   allCoupons,
   applyDiscount,
-  //createPaymentIntent,
+  createPaymentIntent,
+ 
   deleteCoupon,
   newCoupon,
 } from "../controllers/payment.js";
@@ -11,7 +12,7 @@ import {
 const app = express.Router();
 
 // route - /api/v1/payment/create
-//app.post("/create", createPaymentIntent);
+app.post("/create", createPaymentIntent);
 
 // route - /api/v1/payment/discount
 app.get("/discount", applyDiscount);
