@@ -13,6 +13,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const [gender, setGender] = useState("");
   const [date, setDate] = useState("");
+  const [role, setRole] = useState("user"); // Default role is "user"
 
   const [login] = useLoginMutation();
 
@@ -21,25 +22,20 @@ const Login = () => {
       const provider = new GoogleAuthProvider();
       const { user } = await signInWithPopup(auth, provider);
 
-      console.log({
+      const userData = {
         name: user.displayName!,
         email: user.email!,
         photo: user.photoURL!,
         gender,
-        role: "user",
+        role,
         dob: date,
         _id: user.uid,
-      });
+      };
 
-      const res = await login({
-        name: user.displayName!,
-        email: user.email!,
-        photo: user.photoURL!,
-        gender,
-        role: "user",
-        dob: date,
-        _id: user.uid,
-      });
+      console.log("User Data to be sent to backend:", userData);
+
+      const res = await login(userData);
+      console.log(res);
 
       if ("data" in res) {
         toast.success(res.data!.message);
@@ -77,6 +73,14 @@ const Login = () => {
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
+        </div>
+
+        <div>
+          <label>Role</label>
+          <select value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
 
         <div>
